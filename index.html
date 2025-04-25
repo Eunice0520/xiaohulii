@@ -3,7 +3,7 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>小狐狸簽 | Firebase後台連接</title>
+    <title>小狐狸簽 | Firebase已連接</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
@@ -86,29 +86,33 @@
                 return;
             }
 
-            const cardRef = db.collection("cards").doc(card);
-            const cardDoc = await cardRef.get();
+            try {
+                const cardRef = db.collection("cards").doc(card);
+                const cardDoc = await cardRef.get();
 
-            if (!cardDoc.exists) {
-                resultEl.innerText = "兌換碼不存在";
-                return;
+                if (!cardDoc.exists) {
+                    resultEl.innerText = "兌換碼不存在";
+                    return;
+                }
+
+                if (cardDoc.data().used) {
+                    resultEl.innerText = "兌換碼已被使用";
+                    return;
+                }
+
+                await db.collection("udids").add({
+                    udid,
+                    card,
+                    signType,
+                    timestamp: new Date()
+                });
+
+                await cardRef.update({ used: true });
+
+                resultEl.innerText = "兌換成功！已提交資料";
+            } catch (error) {
+                resultEl.innerText = "錯誤：" + error.message;
             }
-
-            if (cardDoc.data().used) {
-                resultEl.innerText = "兌換碼已被使用";
-                return;
-            }
-
-            await db.collection("udids").add({
-                udid,
-                card,
-                signType,
-                timestamp: new Date()
-            });
-
-            await cardRef.update({ used: true });
-
-            resultEl.innerText = "兌換成功！已提交資料";
         }
     </script>
 </body>
