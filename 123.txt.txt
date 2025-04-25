@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>星璨專屬驚喜網站</title>
+  <style>
+    /* ===== 全局設定 ===== */
+    * {
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box;
+      font-family: "微軟正黑體", sans-serif;
+    }
+    body {
+      background: #0f172a; /* 夜空深藍 */
+      color: #fff;
+      overflow-x: hidden;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    h1,h2,h3,h4,h5,h6 {
+      margin: 0;
+    }
+    button {
+      cursor: pointer;
+    }
+
+    /* ===== 星空背景 (純 CSS 版，簡單示例) ===== */
+    /* 參考思路：利用多重背景 or keyframes 做出閃爍效果 */
+    .star-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none; /* 背景不影響點擊 */
+      z-index: -1; 
+      background: radial-gradient(#fff, rgba(255,255,255,0) 70%) 0 0,
+                  radial-gradient(#fff, rgba(255,255,255,0) 70%) 0 0,
+                  radial-gradient(#fff, rgba(255,255,255,0) 70%) 0 0;
+      background-size: 2px 2px;
+      background-repeat: repeat;
+      animation: twinkling 3s infinite alternate;
+    }
+    @keyframes twinkling {
+      from {opacity: 0.8;}
+      to {opacity: 0.4;}
+    }
+
+    /* ===== 導覽列 (可有可無) ===== */
+    nav {
+      width: 100%;
+      padding: 10px 20px;
+      background: rgba(0, 0, 0, 0.4);
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 99;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    nav .nav-title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+    nav .nav-links a {
+      margin-left: 15px;
+      font-size: 14px;
+    }
+
+    /* ===== 主頁 (夜空 + 置中標語) ===== */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0 20px;
+    }
+    .hero h1 {
+      font-size: 2rem;
+      margin-bottom: 16px;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      opacity: 0.8;
+    }
+
+    /* ===== 小秘密板塊 ===== */
+    .section {
+      padding: 60px 20px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+    .section h2 {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+    }
+    
+    /* 照片牆 */
+    .photo-wall {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    .photo-wall img {
+      width: 100%;
+      border-radius: 8px;
+      transition: transform 0.3s;
+      cursor: pointer;
+    }
+    .photo-wall img:hover {
+      transform: scale(1.05);
+    }
+
+    /* 放大顯示照片 - modal */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; 
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      position: relative;
+      max-width: 80%;
+      max-height: 80%;
+    }
+    .modal-content img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .close-btn {
+      position: absolute;
+      top: -30px; 
+      right: -30px;
+      background: #f87171;
+      border: none;
+      border-radius: 50%;
+      width: 40px; 
+      height: 40px;
+      font-size: 16px;
+      color: #fff;
+    }
+
+    /* 紀念日倒數 */
+    .countdown {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 1.2rem;
+    }
+
+    /* ===== 互動遊戲 ===== */
+    .game-section {
+      text-align: center;
+    }
+    .cat-container {
+      margin-top: 30px;
+    }
+    .cat-tail {
+      display: inline-block;
+      width: 80px;
+      height: 80px;
+      background: url('https://cdn-icons-png.flaticon.com/512/3336/3336981.png') no-repeat center/contain;
+      cursor: pointer;
+      position: relative;
+    }
+    .tail-tip {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 30px; 
+      height: 30px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .rizz-message {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      min-height: 24px; /* 撩人語錄顯示區 */
+    }
+
+    /* 星璨情緒測試 */
+    .mood-test {
+      margin-top: 40px;
+    }
+    .mood-button {
+      background: #6366f1;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+    .mood-result {
+      font-size: 1.1rem;
+      min-height: 24px;
+    }
+
+    /* ===== 驚喜信箱 ===== */
+    .surprise-box {
+      text-align: center;
+      margin-top: 40px;
+    }
+    .gift-button {
+      display: inline-block;
+      background: #fcd34d;
+      color: #000;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+    .letter-message {
+      font-size: 1.1rem;
+      min-height: 24px;
+      color: #fcd34d;
+      margin-top: 10px;
+    }
+
+    /* ===== 隱藏小星星彩蛋 ===== */
+    .hidden-star {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 40px;
+      height: 40px;
+      background: url('https://cdn-icons-png.flaticon.com/512/2107/2107957.png') no-repeat center/contain;
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+    .hidden-star:hover {
+      opacity: 1;
+    }
+
+  </style>
+</head>
+<body>
+  <!-- 星空背景 -->
+  <div class="star-bg"></div>
+
+  <!-- 導覽列 (可自行調整) -->
+  <nav>
+    <div class="nav-title">星璨驚喜</div>
+    <div class="nav-links">
+      <a href="#secret">小秘密</a>
+      <a href="#game">互動遊戲</a>
+      <a href="#mailbox">驚喜信箱</a>
+    </div>
+  </nav>
+
+  <!-- 主頁區塊 -->
+  <section class="hero">
+    <h1>我的世界，因你而璨爛</h1>
+    <p>專屬於你的星空，閃耀每一刻幸福時光</p>
+  </section>
+
+  <!-- 小秘密板塊 -->
+  <section class="section" id="secret">
+    <h2>小秘密板塊</h2>
+    <!-- 照片牆 -->
+    <div class="photo-wall">
+      <!-- 請用自己想放的圖片替換以下路徑 -->
+      <img src="https://picsum.photos/id/237/300/200" alt="photo1" />
+      <img src="https://picsum.photos/id/238/300/200" alt="photo2" />
+      <img src="https://picsum.photos/id/239/300/200" alt="photo3" />
+      <img src="https://picsum.photos/id/240/300/200" alt="photo4" />
+      <img src="https://picsum.photos/id/241/300/200" alt="photo5" />
+    </div>
+    <!-- Modal (照片放大) -->
+    <div class="modal" id="photoModal">
+      <div class="modal-content">
+        <button class="close-btn" id="modalCloseBtn">X</button>
+        <img src="" alt="enlarged photo" id="modalImg" />
+      </div>
+    </div>
+
+    <!-- 紀念日倒數 -->
+    <div class="countdown" id="countdown">
+      <!-- 例如：交往紀念日、生日等 -->
+      還有 <span id="daysLeft"></span> 天，就是我們特別的日子啦！
+    </div>
+  </section>
+
+  <!-- 互動遊戲 -->
+  <section class="section" id="game">
+    <h2>互動遊戲</h2>
+    <div class="game-section">
+      <!-- 點擊小貓尾巴遊戲 -->
+      <div class="cat-container">
+        <div class="cat-tail" id="catTail">
+          <!-- cat icon & tail-tip for click zone -->
+          <div class="tail-tip"></div>
+        </div>
+        <div class="rizz-message" id="rizzMessage"></div>
+      </div>
+
+      <!-- 星璨情緒小測試 -->
+      <div class="mood-test">
+        <button class="mood-button" id="moodButton">今天的星璨情緒？</button>
+        <div class="mood-result" id="moodResult"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 驚喜信箱 -->
+  <section class="section" id="mailbox">
+    <h2>驚喜信箱</h2>
+    <div class="surprise-box">
+      <button class="gift-button" id="giftButton">打開禮物</button>
+      <div class="letter-message" id="letterMessage"></div>
+    </div>
+  </section>
+
+  <!-- 隱藏小星星彩蛋 -->
+  <div class="hidden-star" id="hiddenStar"></div>
+
+  <!-- 音樂 (彩蛋播放) -->
+  <audio id="starAudio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto"></audio>
+  <!-- 上述音樂連結只是範例，建議換成你們專屬旋律的 mp3 檔網址 -->
+
+  <script>
+    /*******************************************************
+     *  JavaScript 互動功能 
+     *******************************************************/
+
+    /* ====== 1. 照片牆：點擊放大顯示 ====== */
+    const photoWall = document.querySelector('.photo-wall');
+    const modal = document.getElementById('photoModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+    if (photoWall) {
+      photoWall.addEventListener('click', (e) => {
+        if (e.target.tagName.toLowerCase() === 'img') {
+          modalImg.src = e.target.src;
+          modal.classList.add('active');
+        }
+      });
+    }
+    if (modalCloseBtn) {
+      modalCloseBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+      });
+    }
+    // 點擊背景區域關閉
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    }
+
+    /* ====== 2. 紀念日倒數 ======
+       舉例：目標日期設為 2025-12-31。自行修改 targetDate 即可。 */
+    const targetDate = new Date('2025-12-31');
+    const daysLeftElem = document.getElementById('daysLeft');
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = targetDate - now;
+      const daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      daysLeftElem.textContent = daysLeft > 0 ? daysLeft : 0;
+    }
+    updateCountdown();
+    // 每天或每隔一段時間更新，這裡示範每秒更新
+    setInterval(updateCountdown, 1000);
+
+    /* ====== 3. 點擊小貓尾巴：撩人語錄 ====== */
+    const catTail = document.getElementById('catTail');
+    const rizzMessage = document.getElementById('rizzMessage');
+    const rizzList = [
+      "你就是我心裡最閃亮的星。",
+      "不管夜多黑，心裡都有你給的光。",
+      "有你的日子，風都暖了。",
+      "總想把全世界最好的都給你。",
+      "你是我每天醒來的第一個念頭。",
+      "遇見你，就是最甜的事。"
+    ];
+
+    if (catTail) {
+      catTail.addEventListener('click', () => {
+        const randomIndex = Math.floor(Math.random() * rizzList.length);
+        rizzMessage.textContent = rizzList[randomIndex];
+      });
+    }
+
+    /* ====== 4. 星璨情緒測試 (隨機) ====== */
+    const moodButton = document.getElementById('moodButton');
+    const moodResult = document.getElementById('moodResult');
+    const moods = ["冷漠", "騷氣", "溫柔", "傲嬌", "撒嬌", "甜蜜"];
+
+    if (moodButton) {
+      moodButton.addEventListener('click', () => {
+        const randomIndex = Math.floor(Math.random() * moods.length);
+        const pickedMood = moods[randomIndex];
+        moodResult.textContent = `今天的星璨是「${pickedMood}」！`;
+      });
+    }
+
+    /* ====== 5. 驚喜信箱：隨機小情書 ====== */
+    const giftButton = document.getElementById('giftButton');
+    const letterMessage = document.getElementById('letterMessage');
+    const loveLetters = [
+      "親愛的，感謝你的出現，讓我看見世界的溫柔。",
+      "你的一顰一笑，都是我人生中最美的風景。",
+      "每個瞬間都想和你一起度過，哪怕只是靜靜相視。",
+      "想把所有的甜都藏進你的口袋裡。",
+      "我們的故事，才剛剛開始，未來一起加油！"
+    ];
+
+    if (giftButton) {
+      giftButton.addEventListener('click', () => {
+        const randomIndex = Math.floor(Math.random() * loveLetters.length);
+        letterMessage.textContent = loveLetters[randomIndex];
+      });
+    }
+
+    /* ====== 6. 隱藏小星星 (彩蛋) ====== */
+    const hiddenStar = document.getElementById('hiddenStar');
+    const starAudio = document.getElementById('starAudio');
+
+    if (hiddenStar) {
+      hiddenStar.addEventListener('click', () => {
+        // 播放音樂
+        if (starAudio.paused) {
+          starAudio.play();
+        } else {
+          starAudio.pause();
+          starAudio.currentTime = 0; // 回到起點
+        }
+      });
+    }
+  </script>
+</body>
+</html>
