@@ -1,119 +1,86 @@
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <title>小狐狸簽 | Firebase已連接</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <style>
-        body {
-            background: linear-gradient(to bottom right, #fff0f5, #ffe4e1);
-            font-family: "PingFang SC", sans-serif;
-            text-align: center;
-            padding: 2em;
-            color: #444;
+  <meta charset="UTF-8" />
+  <title>小狐狸簽 | Firebase 完整版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      updateDoc,
+      collection,
+      addDoc
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAWy8sDmp5Y2gL8UHij8q8GU9u4cj2Qfng",
+      authDomain: "xiaohuli-sign.firebaseapp.com",
+      projectId: "xiaohuli-sign",
+      storageBucket: "xiaohuli-sign.firebasestorage.app",
+      messagingSenderId: "827825939368",
+      appId: "1:827825939368:web:21e2ccaa12e74e8c57739d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    window.submitForm = async function () {
+      const udid = document.getElementById("udid").value.trim();
+      const card = document.getElementById("card").value.trim();
+      const resultEl = document.getElementById("result");
+
+      if (!udid || !card) {
+        resultEl.innerText = "請輸入完整資訊";
+        return;
+      }
+
+      try {
+        const cardRef = doc(db, "cards", card);
+        const cardSnap = await getDoc(cardRef);
+
+        if (!cardSnap.exists()) {
+          resultEl.innerText = "兌換碼不存在";
+          return;
         }
-        .card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            max-width: 500px;
-            margin: auto;
-            padding: 2em;
+
+        if (cardSnap.data().used) {
+          resultEl.innerText = "兌換碼已被使用";
+          return;
         }
-        input, button {
-            display: block;
-            width: 80%;
-            margin: 1em auto;
-            padding: 0.8em;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 1em;
-        }
-        .install-types {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 1em;
-        }
-        .footer {
-            margin-top: 2em;
-            font-size: 0.8em;
-            color: #888;
-        }
-        #result {
-            margin-top: 1em;
-            color: #e48c9e;
-            font-weight: bold;
-        }
-    </style>
+
+        await addDoc(collection(db, "udids"), {
+          udid,
+          card,
+          signType: "狐狸輕簽",
+          timestamp: new Date()
+        });
+
+        await updateDoc(cardRef, { used: true });
+
+        resultEl.innerText = "兌換成功！已提交資料";
+      } catch (err) {
+        resultEl.innerText = "錯誤：" + err.message;
+      }
+    };
+  </script>
+  <style>
+    body { background: #fff0f5; font-family: "PingFang SC", sans-serif; text-align: center; padding: 2em; }
+    .card { background: white; border-radius: 16px; max-width: 500px; margin: auto; padding: 2em; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+    input, button { width: 80%; padding: 1em; margin: 1em auto; display: block; font-size: 1em; border-radius: 8px; border: 1px solid #ccc; }
+    button { background-color: #ef89a3; color: white; border: none; }
+    #result { margin-top: 1em; font-weight: bold; color: #b83f57; }
+  </style>
 </head>
 <body>
-    <div class="card">
-        <h1>小狐狸簽</h1>
-        <input id="udid" type="text" placeholder="請輸入 UDID">
-        <input id="card" type="text" placeholder="請輸入兌換碼">
-        <div class="install-types">
-            <label><input type="radio" name="signType" value="狐狸輕簽" checked> 狐狸輕簽</label>
-        </div>
-        <button onclick="submitForm()">兌換安裝</button>
-        <div id="result"></div>
-    </div>
-    <div class="footer">Powered by 小狐狸 Firebase 後台</div>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBlw7T-kMxED1dilS8e-LFZJAjM_o2nwnE",
-            authDomain: "xiaohuli-test.firebaseapp.com",
-            projectId: "xiaohuli-test",
-            storageBucket: "xiaohuli-test.appspot.com",
-            messagingSenderId: "627453777135",
-            appId: "1:627453777135:web:f89964916301e9ef86e40b"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-
-        async function submitForm() {
-            const udid = document.getElementById("udid").value.trim();
-            const card = document.getElementById("card").value.trim();
-            const signType = document.querySelector('input[name="signType"]:checked').value;
-            const resultEl = document.getElementById("result");
-
-            if (!udid || !card) {
-                resultEl.innerText = "請輸入完整資訊";
-                return;
-            }
-
-            try {
-                const cardRef = db.collection("cards").doc(card);
-                const cardDoc = await cardRef.get();
-
-                if (!cardDoc.exists) {
-                    resultEl.innerText = "兌換碼不存在";
-                    return;
-                }
-
-                if (cardDoc.data().used) {
-                    resultEl.innerText = "兌換碼已被使用";
-                    return;
-                }
-
-                await db.collection("udids").add({
-                    udid,
-                    card,
-                    signType,
-                    timestamp: new Date()
-                });
-
-                await cardRef.update({ used: true });
-
-                resultEl.innerText = "兌換成功！已提交資料";
-            } catch (error) {
-                resultEl.innerText = "錯誤：" + error.message;
-            }
-        }
-    </script>
+  <div class="card">
+    <h1>小狐狸簽</h1>
+    <input id="udid" type="text" placeholder="請輸入 UDID" />
+    <input id="card" type="text" placeholder="請輸入兌換碼" />
+    <button onclick="submitForm()">兌換安裝</button>
+    <div id="result"></div>
+  </div>
 </body>
 </html>
