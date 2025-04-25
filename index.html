@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -60,7 +61,8 @@
 
         await updateDoc(cardRef, { used: true });
 
-        resultEl.innerText = "兌換成功！已提交資料";
+        // 自動跳轉到安裝頁
+        window.location.href = "./install.html";
       } catch (err) {
         resultEl.innerText = "錯誤：" + err.message;
       }
