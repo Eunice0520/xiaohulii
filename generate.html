@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <title>小狐狸簽 | 卡密生成後台</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAWy8sDmp5Y2gL8UHij8q8GU9u4cj2Qfng",
+      authDomain: "xiaohuli-sign.firebaseapp.com",
+      projectId: "xiaohuli-sign",
+      storageBucket: "xiaohuli-sign.firebasestorage.app",
+      messagingSenderId: "827825939368",
+      appId: "1:827825939368:web:21e2ccaa12e74e8c57739d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function randomCode(length) {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
+    window.generateCodes = async function () {
+      const num = parseInt(document.getElementById("num").value);
+      if (!num || num <= 0) {
+        alert("請輸入正確數量！");
+        return;
+      }
+
+      let codes = [];
+      for (let i = 0; i < num; i++) {
+        const code = "huli" + randomCode(6);
+        codes.push(code);
+
+        await setDoc(doc(db, "cards", code), {
+          used: false
+        });
+      }
+
+      document.getElementById("output").value = codes.join("\n");
+      alert("成功生成 " + num + " 組卡密！");
+    }
+  </script>
+  <style>
+    body { background: #fff0f5; font-family: "PingFang SC", sans-serif; text-align: center; padding: 2em; }
+    .card { background: white; border-radius: 16px; max-width: 500px; margin: auto; padding: 2em; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+    input, button, textarea { width: 80%; padding: 1em; margin: 1em auto; display: block; font-size: 1em; border-radius: 8px; border: 1px solid #ccc; }
+    button { background-color: #ef89a3; color: white; border: none; }
+    #output { height: 200px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>小狐狸卡密後台</h1>
+    <input id="num" type="number" placeholder="輸入要生成的卡密數量" />
+    <button onclick="generateCodes()">生成卡密並上傳</button>
+    <textarea id="output" readonly placeholder="生成的卡密會出現在這裡"></textarea>
+  </div>
+</body>
+</html>
