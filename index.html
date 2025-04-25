@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -61,7 +60,7 @@
 
         await updateDoc(cardRef, { used: true });
 
-        // 自動跳轉到安裝頁
+        // 自動跳轉安裝
         window.location.href = "./install.html";
       } catch (err) {
         resultEl.innerText = "錯誤：" + err.message;
@@ -71,14 +70,16 @@
   <style>
     body { background: #fff0f5; font-family: "PingFang SC", sans-serif; text-align: center; padding: 2em; }
     .card { background: white; border-radius: 16px; max-width: 500px; margin: auto; padding: 2em; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-    input, button { width: 80%; padding: 1em; margin: 1em auto; display: block; font-size: 1em; border-radius: 8px; border: 1px solid #ccc; }
+    input, button, a { width: 80%; padding: 1em; margin: 1em auto; display: block; font-size: 1em; border-radius: 8px; text-align: center; }
     button { background-color: #ef89a3; color: white; border: none; }
+    a.udid-btn { background: #d63384; color: white; text-decoration: none; }
     #result { margin-top: 1em; font-weight: bold; color: #b83f57; }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>小狐狸簽</h1>
+    <a class="udid-btn" href="xiaohuli_udid.mobileconfig">點我獲取 UDID</a>
     <input id="udid" type="text" placeholder="請輸入 UDID" />
     <input id="card" type="text" placeholder="請輸入兌換碼" />
     <button onclick="submitForm()">兌換安裝</button>
