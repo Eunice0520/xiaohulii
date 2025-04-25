@@ -3,36 +3,45 @@
 <html lang="zh">
 <head>
   <meta charset="UTF-8">
-  <title>UDID 獲取結果</title>
+  <title>小狐狸簽 | UDID 獲取完成</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body {
-      font-family: "PingFang SC", sans-serif;
-      text-align: center;
-      padding: 2em;
-      background: #fff0f5;
-    }
-    .box {
-      background: #ffffff;
-      padding: 2em;
-      border-radius: 12px;
-      max-width: 500px;
-      margin: auto;
-      box-shadow: 0 0 12px rgba(0,0,0,0.1);
-    }
-    .udid {
-      font-weight: bold;
-      color: #e48c9e;
-      font-size: 1.2em;
-      word-break: break-all;
-    }
+    body { font-family: "PingFang SC", sans-serif; background: #fff0f5; text-align: center; padding: 3em; }
+    h1 { color: #d63384; }
+    .card { background: white; max-width: 500px; margin: auto; padding: 2em; border-radius: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+    textarea { width: 90%; height: 150px; font-size: 14px; padding: 1em; margin-top: 1em; border-radius: 8px; border: 1px solid #ccc; }
+    .btn { margin-top: 20px; background: #ef89a3; color: white; padding: 0.8em 1.5em; border: none; border-radius: 8px; font-size: 1em; }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>你的小狐狸 UDID 是：</h1>
-    <p class="udid">[此處為展示用，如接後端可顯示實際 UDID]</p>
-    <p>請截圖保存，或返回主頁進行兌換安裝操作。</p>
+  <div class="card">
+    <h1>UDID 獲取成功！</h1>
+    <p>請長按複製下方資訊，或貼給小狐狸客服使用</p>
+    <textarea readonly id="output">若未自動顯示，請聯繫平台提供 screenshot 或手動操作</textarea>
+    <button class="btn" onclick="copy()">點我複製</button>
   </div>
+
+  <script>
+    function copy() {
+      const out = document.getElementById("output");
+      out.select();
+      document.execCommand("copy");
+      alert("已複製到剪貼簿！");
+    }
+
+    // 嘗試讀取 URL 回傳參數（暫時模擬）
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      let data = "";
+
+      params.forEach((value, key) => {
+        data += key + ": " + value + "\n";
+      });
+
+      if (data) {
+        document.getElementById("output").value = data;
+      }
+    };
+  </script>
 </body>
 </html>
